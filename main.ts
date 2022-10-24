@@ -6,6 +6,35 @@ namespace SpriteKind {
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile1`, function (sprite, location) {
     game.over(false)
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    myEnemy = sprites.create(img`
+        ........................
+        ........................
+        ........................
+        ........................
+        ..........ffff..........
+        ........ff1111ff........
+        .......fb111111bf.......
+        .......f11111111f.......
+        ......fd11111111df......
+        ......fd11111111df......
+        ......fddd1111dddf......
+        ......fbdbfddfbdbf......
+        ......fcdcf11fcdcf......
+        .......fb111111bf.......
+        ......fffcdb1bdffff.....
+        ....fc111cbfbfc111cf....
+        ....f1b1b1ffff1b1b1f....
+        ....fbfbffffffbfbfbf....
+        .........ffffff.........
+        ...........fff..........
+        ........................
+        ........................
+        ........................
+        ........................
+        `, SpriteKind.Enemy)
+    myEnemy.follow(mySprite)
+})
 controller.player1.onButtonEvent(ControllerButton.Up, ControllerButtonEvent.Pressed, function () {
     direction = 1
     animation.runImageAnimation(
@@ -84,7 +113,12 @@ controller.player1.onButtonEvent(ControllerButton.Up, ControllerButtonEvent.Pres
     )
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.bomb, function (sprite, otherSprite) {
-    FireballAmount += 1
+    FireballAmount += 16
+    info.changeScoreBy(16)
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile2`, function (sprite, location) {
+    game.splash("Congrats on finding your first chest!")
+    game.splash("You have now attained gold!")
 })
 controller.player1.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.Pressed, function () {
     direction = 2
@@ -162,6 +196,13 @@ controller.player1.onButtonEvent(ControllerButton.Right, ControllerButtonEvent.P
     200,
     true
     )
+})
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
+    myEnemy.destroy(effects.ashes, 200)
+    info.changeScoreBy(5)
+    FireballAmount += 5
+    pause(500)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Enemy, effects.halo, 500)
 })
 controller.player1.onButtonEvent(ControllerButton.Left, ControllerButtonEvent.Pressed, function () {
     direction = 4
@@ -318,8 +359,8 @@ controller.player1.onButtonEvent(ControllerButton.Down, ControllerButtonEvent.Pr
     )
 })
 let projectile: Sprite = null
-let FireballAmount = 0
 let direction = 0
+let myEnemy: Sprite = null
 let mySprite: Sprite = null
 tiles.setCurrentTilemap(tilemap`level1`)
 mySprite = sprites.create(img`
@@ -340,11 +381,13 @@ mySprite = sprites.create(img`
     . . . . . f f f f f f . . . . . 
     . . . . . f f . . f f . . . . . 
     `, SpriteKind.Player)
-controller.player1.moveSprite(mySprite, 100, 100)
+controller.player1.moveSprite(mySprite, 105, 105)
 scene.cameraFollowSprite(mySprite)
 game.splash("Hello this, is Zordon!")
 game.splash("In this game you will play as, well Zordon.")
 game.splash("The goal of this game is to fight enemies and become more powerful")
+let FireballAmount = 10
+info.setScore(10)
 forever(function () {
     if (mySprite.vy == 0 && mySprite.vx == 0) {
         animation.stopAnimation(animation.AnimationTypes.All, mySprite)
@@ -370,6 +413,8 @@ forever(function () {
                     . . . 2 2 4 4 4 4 4 4 2 2 . . . 
                     . . . . . 2 2 2 2 2 2 . . . . . 
                     `, mySprite, 0, -110)
+                FireballAmount += -1
+                info.changeScoreBy(-1)
             }
             if (direction == 2) {
                 projectile = sprites.createProjectileFromSprite(img`
@@ -390,6 +435,8 @@ forever(function () {
                     . . . 2 2 4 4 4 4 4 4 2 2 . . . 
                     . . . . . 2 2 2 2 2 2 . . . . . 
                     `, mySprite, 110, 0)
+                FireballAmount += -1
+                info.changeScoreBy(-1)
             }
             if (direction == 3) {
                 projectile = sprites.createProjectileFromSprite(img`
@@ -410,6 +457,8 @@ forever(function () {
                     . . . 2 2 4 4 4 4 4 4 2 2 . . . 
                     . . . . . 2 2 2 2 2 2 . . . . . 
                     `, mySprite, 0, 110)
+                FireballAmount += -1
+                info.changeScoreBy(-1)
             }
             if (direction == 4) {
                 projectile = sprites.createProjectileFromSprite(img`
@@ -430,6 +479,8 @@ forever(function () {
                     . . . 2 2 4 4 4 4 4 4 2 2 . . . 
                     . . . . . 2 2 2 2 2 2 . . . . . 
                     `, mySprite, -110, 0)
+                FireballAmount += -1
+                info.changeScoreBy(-1)
             }
         }
     }
